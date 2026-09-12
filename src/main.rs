@@ -6,7 +6,7 @@ pub mod camera;
 mod world;
 
 use std::ops::DerefMut;
-use glam::{FloatExt, Vec2, Vec3};
+use glam::{FloatExt, Quat, Vec2, Vec3};
 use minifb::{Key, Scale, ScaleMode, WindowOptions};
 use crate::camera::Camera;
 use crate::framebuffer::Framebuffer;
@@ -42,7 +42,9 @@ fn main() {
         world.begin_frame();
 
         let y = world.time().sin().remap(-1., 1., -2., 0.);
+        let rot = Quat::from_rotation_y(world.time());
         object_tf.set_pos(Vec3::new(0., y, -3.));
+        object_tf.set_rot(rot);
         world.draw_object(&object, object_tf);
 
         world.render(&mut pipeline);

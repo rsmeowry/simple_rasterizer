@@ -1,4 +1,4 @@
-﻿use crate::asset::Texture;
+use crate::asset::Texture;
 use crate::pipeline::shader::{FragmentShader, PerObjectUniforms, Varyings, VertexShader};
 use crate::pipeline::vertex::Vertex;
 use crate::pipeline::{Color, Uniforms};
@@ -25,14 +25,21 @@ impl Varyings for TexCoord {
     }
 }
 
-
 #[derive(Debug, Copy, Clone)]
 pub struct SimpleVertexColor;
 
 impl VertexShader<Vertex, Color> for SimpleVertexColor {
-    fn process(&self, vertex: &Vertex, obj: &PerObjectUniforms,  uniforms: &Uniforms) -> (Vec4, Color) {
+    fn process(
+        &self,
+        vertex: &Vertex,
+        obj: &PerObjectUniforms,
+        uniforms: &Uniforms,
+    ) -> (Vec4, Color) {
         let mvp: Mat4 = uniforms.proj * uniforms.view * obj.model_matrix();
-        (mvp.mul_vec4(Vec4::new(vertex.pos.x, vertex.pos.y, vertex.pos.z, 1.0)), Color(vertex.col))
+        (
+            mvp.mul_vec4(Vec4::new(vertex.pos.x, vertex.pos.y, vertex.pos.z, 1.0)),
+            Color(vertex.col),
+        )
     }
 }
 
@@ -46,9 +53,17 @@ impl FragmentShader<Color> for SimpleVertexColor {
 pub struct VisualizeUv;
 
 impl VertexShader<Vertex, Vec2> for VisualizeUv {
-    fn process(&self, vertex: &Vertex, obj: &PerObjectUniforms,  uniforms: &Uniforms) -> (Vec4, Vec2) {
+    fn process(
+        &self,
+        vertex: &Vertex,
+        obj: &PerObjectUniforms,
+        uniforms: &Uniforms,
+    ) -> (Vec4, Vec2) {
         let mvp: Mat4 = uniforms.proj * uniforms.view * obj.model_matrix();
-        (mvp.mul_vec4(Vec4::new(vertex.pos.x, vertex.pos.y, vertex.pos.z, 1.0)), vertex.uv)
+        (
+            mvp.mul_vec4(Vec4::new(vertex.pos.x, vertex.pos.y, vertex.pos.z, 1.0)),
+            vertex.uv,
+        )
     }
 }
 
@@ -65,9 +80,17 @@ pub struct SimpleTexCoords;
 pub struct UnlitTextured(pub Texture);
 
 impl VertexShader<Vertex, TexCoord> for SimpleTexCoords {
-    fn process(&self, vertex: &Vertex, obj: &PerObjectUniforms,  uniforms: &Uniforms) -> (Vec4, TexCoord) {
+    fn process(
+        &self,
+        vertex: &Vertex,
+        obj: &PerObjectUniforms,
+        uniforms: &Uniforms,
+    ) -> (Vec4, TexCoord) {
         let mvp: Mat4 = uniforms.proj * uniforms.view * obj.model_matrix();
-        (mvp.mul_vec4(Vec4::new(vertex.pos.x, vertex.pos.y, vertex.pos.z, 1.0)), TexCoord(vertex.uv))
+        (
+            mvp.mul_vec4(Vec4::new(vertex.pos.x, vertex.pos.y, vertex.pos.z, 1.0)),
+            TexCoord(vertex.uv),
+        )
     }
 }
 
@@ -83,13 +106,25 @@ impl FragmentShader<TexCoord> for UnlitTextured {
 pub struct PhongVS;
 
 impl VertexShader<Vertex, PhongVaryings> for PhongVS {
-    fn process(&self, vertex: &Vertex, obj: &PerObjectUniforms, uniforms: &Uniforms) -> (Vec4, PhongVaryings) {
+    fn process(
+        &self,
+        vertex: &Vertex,
+        obj: &PerObjectUniforms,
+        uniforms: &Uniforms,
+    ) -> (Vec4, PhongVaryings) {
         let world_pos = obj.model_matrix.transform_point3(vertex.pos);
         let normal = vertex.normal;
         let uv = vertex.uv;
 
         let mvp = uniforms.proj * uniforms.view * obj.model_matrix();
-        (mvp.mul_vec4(Vec4::new(vertex.pos.x, vertex.pos.y, vertex.pos.z, 1.0)), PhongVaryings { world_pos, normal, uv })
+        (
+            mvp.mul_vec4(Vec4::new(vertex.pos.x, vertex.pos.y, vertex.pos.z, 1.0)),
+            PhongVaryings {
+                world_pos,
+                normal,
+                uv,
+            },
+        )
     }
 }
 
@@ -108,7 +143,7 @@ pub struct PhongFS {
 pub struct PhongVaryings {
     pub normal: Vec3,
     pub uv: Vec2,
-    pub world_pos: Vec3
+    pub world_pos: Vec3,
 }
 
 impl Varyings for PhongVaryings {
@@ -117,7 +152,11 @@ impl Varyings for PhongVaryings {
         let normal = weights.0 * a.normal + weights.1 * b.normal + weights.2 * c.normal;
         let world_pos = weights.0 * a.world_pos + weights.1 * b.world_pos + weights.2 * c.world_pos;
 
-        Self { normal, uv, world_pos }
+        Self {
+            normal,
+            uv,
+            world_pos,
+        }
     }
 }
 

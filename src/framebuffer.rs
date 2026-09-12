@@ -1,10 +1,10 @@
-﻿use glam::Vec3;
+use glam::Vec3;
 
 pub struct Framebuffer {
     width: usize,
     height: usize,
     color: Vec<u32>,
-    depth: Vec<f32>
+    depth: Vec<f32>,
 }
 
 impl Framebuffer {

@@ -1,17 +1,30 @@
-﻿use std::fmt::Debug;
-use std::path::Path;
-use glam::{Vec2, Vec3};
-use tobj::LoadOptions;
 use crate::pipeline::object::{AnyRenderObject, RenderObject};
 use crate::pipeline::shader::{FragmentShader, Varyings, VertexShader};
 use crate::pipeline::vertex::Vertex;
+use glam::{Vec2, Vec3};
+use std::fmt::Debug;
+use std::path::Path;
+use tobj::LoadOptions;
 
-pub fn load_obj<P: AsRef<Path> + Debug, V, VS, FS>(path: P, vs: VS, fs: FS) -> Box<dyn AnyRenderObject> where V: Varyings + 'static, VS: VertexShader<Vertex, V> + 'static, FS: FragmentShader<V> + 'static {
-    let (models, _mats) = tobj::load_obj(path, &LoadOptions {
-        triangulate: true,
-        single_index: true,
-        ..Default::default()
-    }).expect("failed to load obj file");
+pub fn load_obj<P: AsRef<Path> + Debug, V, VS, FS>(
+    path: P,
+    vs: VS,
+    fs: FS,
+) -> Box<dyn AnyRenderObject>
+where
+    V: Varyings + 'static,
+    VS: VertexShader<Vertex, V> + 'static,
+    FS: FragmentShader<V> + 'static,
+{
+    let (models, _mats) = tobj::load_obj(
+        path,
+        &LoadOptions {
+            triangulate: true,
+            single_index: true,
+            ..Default::default()
+        },
+    )
+    .expect("failed to load obj file");
 
     let mesh = &models.first().unwrap().mesh;
 
@@ -38,10 +51,7 @@ pub fn load_obj<P: AsRef<Path> + Debug, V, VS, FS>(path: P, vs: VS, fs: FS) -> B
         };
 
         let uv = if !mesh.texcoords.is_empty() {
-            Vec2::new(
-                mesh.texcoords[i * 2],
-                1.0 - mesh.texcoords[i * 2 + 1],
-            )
+            Vec2::new(mesh.texcoords[i * 2], 1.0 - mesh.texcoords[i * 2 + 1])
         } else {
             Vec2::ZERO
         };
@@ -61,20 +71,25 @@ pub struct Texture {
 
 impl Texture {
     pub fn load<P: AsRef<Path>>(path: P) -> Self {
-        let img = image::open(path)
-            .expect("failed to load texture")
-            .to_rgb8();
+        let img = image::open(path).expect("failed to load texture").to_rgb8();
 
         let (width, height) = img.dimensions();
-        let pixels = img.pixels()
-            .map(|p| Vec3::new(
-                p[0] as f32 / 256.0,
-                p[1] as f32 / 256.0,
-                p[2] as f32 / 256.0,
-            ))
+        let pixels = img
+            .pixels()
+            .map(|p| {
+                Vec3::new(
+                    p[0] as f32 / 256.0,
+                    p[1] as f32 / 256.0,
+                    p[2] as f32 / 256.0,
+                )
+            })
             .collect();
 
-        Self { width, height, pixels }
+        Self {
+            width,
+            height,
+            pixels,
+        }
     }
 
     pub fn sample_nearest(&self, uv: Vec2) -> Vec3 {

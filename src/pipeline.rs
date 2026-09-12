@@ -1,13 +1,13 @@
-﻿use crate::framebuffer::{col3_to_u32, Framebuffer};
+use crate::framebuffer::{Framebuffer, col3_to_u32};
 use crate::pipeline::object::AnyRenderObject;
 use crate::tri::Tri;
 use crate::world::Transform;
 use glam::{Mat4, Vec2, Vec3, Vec4, Vec4Swizzles};
 use std::any::Any;
 
-pub mod vertex;
-pub mod shader;
 pub mod object;
+pub mod shader;
+pub mod vertex;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 #[repr(transparent)]
@@ -25,7 +25,10 @@ pub struct Uniforms {
 impl Uniforms {
     pub fn new(view: Mat4, proj: Mat4, camera_pos: Vec3) -> Self {
         Self {
-            view, proj, view_dir: view.transform_vector3(Vec3::Z), camera_pos
+            view,
+            proj,
+            view_dir: view.transform_vector3(Vec3::Z),
+            camera_pos,
         }
     }
 
@@ -54,13 +57,20 @@ impl Pipeline {
     }
 
     #[allow(clippy::borrowed_box)]
-    pub fn draw(&mut self, objects: &Vec<(&Box<dyn AnyRenderObject>, Transform)>, uniforms: Uniforms) {
+    pub fn draw(
+        &mut self,
+        objects: &Vec<(&Box<dyn AnyRenderObject>, Transform)>,
+        uniforms: Uniforms,
+    ) {
         self.fb.clear(0x7fc7f4);
         self.fb.clear_depth();
         for (obj, tf) in objects {
             // vertex stage
             let obj_uniforms = tf.uniforms();
-            let tf_vertices: Vec<(Vec4, Box<dyn Any>)> = obj.vertices().iter().map(|v| obj.do_vertex_stage(v, &uniforms, &obj_uniforms))
+            let tf_vertices: Vec<(Vec4, Box<dyn Any>)> = obj
+                .vertices()
+                .iter()
+                .map(|v| obj.do_vertex_stage(v, &uniforms, &obj_uniforms))
                 .collect();
 
             // rasterizing
@@ -70,7 +80,9 @@ impl Pipeline {
                 let (c2, v2): &(Vec4, Box<dyn Any>) = &tf_vertices[tri[2] as usize];
 
                 // behind camera clipping
-                if c0.w <= 0. || c1.w <= 0. || c2.w <= 0. { continue; }
+                if c0.w <= 0. || c1.w <= 0. || c2.w <= 0. {
+                    continue;
+                }
 
                 // perspective divide, normalize coordinates, viewport transform, screen space
                 let w = self.fb.width() as f32;
@@ -84,16 +96,49 @@ impl Pipeline {
                     continue; // facing the other way
                 }
 
-                self.rasterize_triangle(obj.as_ref(), &tri2d, [s0, s1, s2], [v0, v1, v2], &uniforms);
+                self.rasterize_triangle(
+                    obj.as_ref(),
+                    &tri2d,
+                    [s0, s1, s2],
+                    [v0, v1, v2],
+                    &uniforms,
+                );
             }
         }
     }
 
-    fn rasterize_triangle(&mut self, obj: &dyn AnyRenderObject, tri: &Tri, sv: [ScreenVert; 3], vars: [&Box<dyn Any>; 3], uniforms: &Uniforms) {
-        let min_x = sv.iter().map(|v| v.pos.x).fold(f32::INFINITY, f32::min).floor().max(0.0) as usize;
-        let max_x = sv.iter().map(|v| v.pos.x).fold(f32::NEG_INFINITY, f32::max).ceil().min(self.fb.width() as f32) as usize;
-        let min_y = sv.iter().map(|v| v.pos.y).fold(f32::INFINITY, f32::min).floor().max(0.0) as usize;
-        let max_y = sv.iter().map(|v| v.pos.y).fold(f32::NEG_INFINITY, f32::max).ceil().min(self.fb.height() as f32) as usize;
+    fn rasterize_triangle(
+        &mut self,
+        obj: &dyn AnyRenderObject,
+        tri: &Tri,
+        sv: [ScreenVert; 3],
+        vars: [&Box<dyn Any>; 3],
+        uniforms: &Uniforms,
+    ) {
+        let min_x = sv
+            .iter()
+            .map(|v| v.pos.x)
+            .fold(f32::INFINITY, f32::min)
+            .floor()
+            .max(0.0) as usize;
+        let max_x = sv
+            .iter()
+            .map(|v| v.pos.x)
+            .fold(f32::NEG_INFINITY, f32::max)
+            .ceil()
+            .min(self.fb.width() as f32) as usize;
+        let min_y = sv
+            .iter()
+            .map(|v| v.pos.y)
+            .fold(f32::INFINITY, f32::min)
+            .floor()
+            .max(0.0) as usize;
+        let max_y = sv
+            .iter()
+            .map(|v| v.pos.y)
+            .fold(f32::NEG_INFINITY, f32::max)
+            .ceil()
+            .min(self.fb.height() as f32) as usize;
 
         for y in min_y..max_y {
             for x in min_x..max_x {
@@ -122,7 +167,12 @@ impl Pipeline {
                 );
 
                 // interpolation + fs
-                let interp = obj.interpolate_varyings(vars[0].as_ref(), vars[1].as_ref(), vars[2].as_ref(), pw);
+                let interp = obj.interpolate_varyings(
+                    vars[0].as_ref(),
+                    vars[1].as_ref(),
+                    vars[2].as_ref(),
+                    pw,
+                );
                 let col = obj.do_frag_stage(interp, uniforms);
 
                 self.fb.set_col(x, y, col3_to_u32(col.xyz()));
@@ -133,7 +183,7 @@ impl Pipeline {
 }
 
 struct ScreenVert {
-    pos: Vec2, // pixel coordinates pos
+    pos: Vec2,  // pixel coordinates pos
     inv_w: f32, // for perspective correct interpolation
     ndc_z: f32, // depth
 }
@@ -150,10 +200,9 @@ fn to_screen(clip: Vec4, w: f32, h: f32) -> ScreenVert {
     let screen_x = (ndc_x * 0.5 + 0.5) * w;
     let screen_y = (1. - (ndc_y * 0.5 + 0.5)) * h;
 
-
     ScreenVert {
         pos: Vec2::new(screen_x, screen_y),
         inv_w,
-        ndc_z
+        ndc_z,
     }
 }

@@ -1,4 +1,4 @@
-﻿use crate::camera::Camera;
+use crate::camera::Camera;
 use crate::pipeline::object::AnyRenderObject;
 use crate::pipeline::shader::PerObjectUniforms;
 use crate::pipeline::{Pipeline, Uniforms};
@@ -9,12 +9,14 @@ use std::time::Instant;
 pub struct Transform {
     pub pos: Vec3,
     pub rot: Quat,
-    pub scl: Vec3
+    pub scl: Vec3,
 }
 
 impl Transform {
     pub fn uniforms(&self) -> PerObjectUniforms {
-        PerObjectUniforms::new(Mat4::from_scale_rotation_translation(self.scl, self.rot, self.pos))
+        PerObjectUniforms::new(Mat4::from_scale_rotation_translation(
+            self.scl, self.rot, self.pos,
+        ))
     }
 }
 
@@ -23,11 +25,10 @@ impl Default for Transform {
         Self {
             pos: Vec3::ZERO,
             scl: Vec3::ONE,
-            rot: Quat::IDENTITY
+            rot: Quat::IDENTITY,
         }
     }
 }
-
 
 pub struct World<'w> {
     #[allow(clippy::borrowed_box)]
@@ -69,7 +70,10 @@ impl<'w> World<'w> {
 
     pub fn render(&self, pipeline: &mut Pipeline) {
         let (proj, view) = self.camera.proj_view();
-        pipeline.draw(&self.object_queue, Uniforms::new(view, proj, self.camera.pos));
+        pipeline.draw(
+            &self.object_queue,
+            Uniforms::new(view, proj, self.camera.pos),
+        );
     }
 
     #[allow(clippy::borrowed_box)]

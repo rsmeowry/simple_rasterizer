@@ -1,10 +1,10 @@
-pub mod tri;
-mod util;
+pub mod asset;
+pub mod camera;
 mod framebuffer;
 pub mod pipeline;
-pub mod camera;
+pub mod tri;
+pub mod util;
 pub mod world;
-pub mod asset;
 
 use crate::asset::Texture;
 use crate::pipeline::shader::builtin::{PhongFS, PhongVS};
@@ -17,16 +17,22 @@ const WIDTH: usize = 800;
 const HEIGHT: usize = 640;
 
 fn main() {
-    let mut win = minifb::Window::new("my rasterizer! :D", WIDTH, HEIGHT, WindowOptions {
-        borderless: false,
-        title: true,
-        resize: false,
-        scale: Scale::X1,
-        scale_mode: ScaleMode::AspectRatioStretch,
-        topmost: false,
-        transparency: false,
-        none: false,
-    }).unwrap();
+    let mut win = minifb::Window::new(
+        "my rasterizer! :D",
+        WIDTH,
+        HEIGHT,
+        WindowOptions {
+            borderless: false,
+            title: true,
+            resize: false,
+            scale: Scale::X1,
+            scale_mode: ScaleMode::AspectRatioStretch,
+            topmost: false,
+            transparency: false,
+            none: false,
+        },
+    )
+    .unwrap();
 
     let mut pipeline = pipeline::Pipeline::new(WIDTH, HEIGHT);
 
@@ -57,7 +63,10 @@ fn main() {
         world.begin_frame();
 
         if win.is_key_down(Key::F) {
-            win.set_title(&format!("{} FPS | my rasterizer! :D", (1. / world.delta_time()).round_n(1)));
+            win.set_title(&format!(
+                "{} FPS | my rasterizer! :D",
+                (1. / world.delta_time()).round_n(1)
+            ));
         }
 
         if win.is_key_pressed(Key::Left, KeyRepeat::Yes) {
@@ -71,6 +80,11 @@ fn main() {
 
         world.render(&mut pipeline);
 
-        win.update_with_buffer(pipeline.buffer().color(), pipeline.buffer().width(), pipeline.buffer().height()).unwrap();
+        win.update_with_buffer(
+            pipeline.buffer().color(),
+            pipeline.buffer().width(),
+            pipeline.buffer().height(),
+        )
+        .unwrap();
     }
 }

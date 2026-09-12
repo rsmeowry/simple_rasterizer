@@ -1,17 +1,16 @@
 ﻿use glam::Vec2;
 
+/// a 2D triangle
 pub struct Tri(pub Vec2, pub Vec2, pub Vec2);
 
 impl Tri {
+    /// calculates the signed area of this triangle
     pub fn area(&self) -> f32 {
-        0.5 *
-            (
-                self.0.x * (self.1.y - self.2.y)
-                    + self.1.x * (self.2.y - self.0.y)
-                    + self.2.x * (self.0.y - self.1.y)
-            ).abs()
+        (self.2.x - self.0.x) * (self.1.y - self.0.y) -
+            (self.2.y - self.0.y) * (self.1.x - self.0.x)
     }
 
+    /// calculates barycentric weights for a provided point
     pub fn barycentric_weights(&self, p: Vec2) -> (f32, f32, f32) {
         let pbc = Tri(p, self.1, self.2);
         let pca = Tri(p, self.2, self.0);

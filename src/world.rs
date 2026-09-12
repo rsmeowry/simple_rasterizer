@@ -30,11 +30,12 @@ impl Default for Transform {
 
 
 pub struct World<'w> {
+    #[allow(clippy::borrowed_box)]
     object_queue: Vec<(&'w Box<dyn AnyRenderObject>, Transform)>,
     begin_time: Instant,
     last_frame: Instant,
     dt: f32,
-    camera: Camera, 
+    camera: Camera,
 }
 
 impl<'w> World<'w> {
@@ -71,7 +72,14 @@ impl<'w> World<'w> {
         pipeline.draw(&self.object_queue, Uniforms::new(view, proj, self.camera.pos));
     }
 
+    #[allow(clippy::borrowed_box)]
     pub fn draw_object(&mut self, object: &'w Box<dyn AnyRenderObject>, tf: Transform) {
         self.object_queue.push((object, tf));
+    }
+}
+
+impl<'w> Default for World<'w> {
+    fn default() -> Self {
+        Self::new()
     }
 }

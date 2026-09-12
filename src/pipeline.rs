@@ -53,6 +53,7 @@ impl Pipeline {
         &self.fb
     }
 
+    #[allow(clippy::borrowed_box)]
     pub fn draw(&mut self, objects: &Vec<(&Box<dyn AnyRenderObject>, Transform)>, uniforms: Uniforms) {
         self.fb.clear(0x7fc7f4);
         self.fb.clear_depth();
@@ -122,7 +123,7 @@ impl Pipeline {
 
                 // interpolation + fs
                 let interp = obj.interpolate_varyings(vars[0].as_ref(), vars[1].as_ref(), vars[2].as_ref(), pw);
-                let col = obj.do_frag_stage(interp, &uniforms);
+                let col = obj.do_frag_stage(interp, uniforms);
 
                 self.fb.set_col(x, y, col3_to_u32(col.xyz()));
                 self.fb.set_depth(x, y, depth);

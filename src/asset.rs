@@ -6,21 +6,21 @@ use crate::pipeline::object::{AnyRenderObject, RenderObject};
 use crate::pipeline::shader::{FragmentShader, Varyings, VertexShader};
 use crate::pipeline::vertex::Vertex;
 
-pub fn load_obj<P: AsRef<Path> + Debug, V: 'static, VS: 'static, FS: 'static>(path: P, vs: VS, fs: FS) -> Box<dyn AnyRenderObject> where V: Varyings, VS: VertexShader<Vertex, V>, FS: FragmentShader<V> {
+pub fn load_obj<P: AsRef<Path> + Debug, V, VS, FS>(path: P, vs: VS, fs: FS) -> Box<dyn AnyRenderObject> where V: Varyings + 'static, VS: VertexShader<Vertex, V> + 'static, FS: FragmentShader<V> + 'static {
     let (models, _mats) = tobj::load_obj(path, &LoadOptions {
         triangulate: true,
         single_index: true,
         ..Default::default()
     }).expect("failed to load obj file");
 
-    let mesh = &models.get(0).unwrap().mesh;
+    let mesh = &models.first().unwrap().mesh;
 
     let vertex_cnt = mesh.positions.len() / 3;
     let mut vertices = Vec::with_capacity(vertex_cnt);
 
     for i in 0..vertex_cnt {
         let pos = Vec3::new(
-            mesh.positions[i * 3 + 0],
+            mesh.positions[i * 3],
             mesh.positions[i * 3 + 1],
             mesh.positions[i * 3 + 2],
         );

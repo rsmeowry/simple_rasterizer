@@ -38,7 +38,7 @@ impl VertexShader<Vertex, Color> for SimpleVertexColor {
 
 impl FragmentShader<Color> for SimpleVertexColor {
     fn apply(&self, var: &Color, _uniforms: &Uniforms) -> Vec4 {
-        return Vec4::new(var.0.x, var.0.y, var.0.z, 1.);
+        Vec4::new(var.0.x, var.0.y, var.0.z, 1.)
     }
 }
 
@@ -54,7 +54,7 @@ impl VertexShader<Vertex, Vec2> for VisualizeUv {
 
 impl FragmentShader<Vec2> for VisualizeUv {
     fn apply(&self, var: &Vec2, _uniforms: &Uniforms) -> Vec4 {
-        return Vec4::new(var.x, var.y, 1., 1.);
+        Vec4::new(var.x, var.y, 1., 1.)
     }
 }
 

@@ -48,7 +48,7 @@ impl<V, VS, FS> AnyRenderObject for RenderObject<V, VS, FS> where V: Varyings + 
     }
 
     fn do_vertex_stage(&self, vertex: &Vertex, uniforms: &Uniforms, tf: &PerObjectUniforms) -> (Vec4, Box<dyn Any>) {
-        let (clip_pos, var) = self.vs.process(&vertex, tf, uniforms);
+        let (clip_pos, var) = self.vs.process(vertex, tf, uniforms);
         (clip_pos, Box::new(var))
     }
 

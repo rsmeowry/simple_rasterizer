@@ -1,6 +1,7 @@
 ﻿use std::any::Any;
 use std::marker::PhantomData;
 use glam::{Mat4, Quat, Vec2, Vec3, Vec4, Vec4Swizzles};
+use crate::asset::Texture;
 use crate::camera::Camera;
 use crate::framebuffer::{col3_to_u32, Framebuffer};
 use crate::pipeline::object::{AnyRenderObject, RenderObject};
@@ -20,13 +21,14 @@ pub struct Color(Vec3);
 #[derive(Debug, Clone)]
 pub struct Uniforms {
     view: Mat4,
-    proj: Mat4
+    proj: Mat4,
+    tex: Option<Texture>
 }
 
 impl Uniforms {
-    pub fn new(view: Mat4, proj: Mat4) -> Self {
+    pub fn new(view: Mat4, proj: Mat4, tex: Option<Texture>) -> Self {
         Self {
-            view, proj
+            view, proj, tex
         }
     }
 
@@ -36,6 +38,10 @@ impl Uniforms {
 
     pub fn proj(&self) -> &Mat4 {
         &self.proj
+    }
+
+    pub fn tex(&self) -> &Option<Texture> {
+        &self.tex
     }
 }
 

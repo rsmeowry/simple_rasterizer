@@ -1,8 +1,9 @@
 ﻿use std::time::Instant;
 use glam::{Mat4, Quat, Vec3};
+use crate::asset::Texture;
 use crate::camera::Camera;
 use crate::pipeline::object::AnyRenderObject;
-use crate::pipeline::Pipeline;
+use crate::pipeline::{Pipeline, Uniforms};
 use crate::pipeline::shader::PerObjectUniforms;
 
 #[derive(Debug, Clone, Copy)]
@@ -35,6 +36,7 @@ pub struct World<'w> {
     last_frame: Instant,
     dt: f32,
     camera: Camera,
+    main_tex: Option<Texture>,
 }
 
 impl<'w> World<'w> {
@@ -44,31 +46,36 @@ impl<'w> World<'w> {
             begin_time: Instant::now(),
             last_frame: Instant::now(),
             dt: 0.,
-            camera: Camera::default()
+            camera: Camera::default(),
+            main_tex: None,
         }
+    }
+
+    pub fn set_main_tex(&mut self, main_tex: Texture) {
+        self.main_tex = Some(main_tex);
     }
 
     pub fn begin_frame(&mut self) {
         self.object_queue.clear();
         self.dt = (Instant::now() - self.last_frame).as_secs_f32();
         self.last_frame = Instant::now();
-        println!("Frame time: {}", self.dt);
     }
-    
+
     pub fn camera_mut(&mut self) -> &mut Camera {
         &mut self.camera
     }
-    
+
     pub fn time(&self) -> f32 {
         Instant::now().duration_since(self.begin_time).as_secs_f32()
     }
-    
+
     pub fn delta_time(&self) -> f32 {
         self.dt
     }
 
     pub fn render(&self, pipeline: &mut Pipeline) {
-        pipeline.draw(&self.object_queue, self.camera.uniforms());
+        let (proj, view) = self.camera.proj_view();
+        pipeline.draw(&self.object_queue, Uniforms::new(view, proj, self.main_tex.clone()));
     }
 
     pub fn draw_object(&mut self, object: &'w Box<dyn AnyRenderObject>, tf: Transform) {

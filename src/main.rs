@@ -7,13 +7,11 @@ pub mod world;
 pub mod asset;
 
 use crate::asset::Texture;
-use crate::pipeline::object::AnyRenderObject;
-use crate::pipeline::shader::builtin::{PhongFS, PhongVS, SimpleTexCoords, UnlitTextured};
+use crate::pipeline::shader::builtin::{PhongFS, PhongVS};
 use crate::util::RoundN;
 use crate::world::{Transform, World};
-use glam::{FloatExt, Quat, Vec3};
+use glam::{Quat, Vec3};
 use minifb::{Key, KeyRepeat, Scale, ScaleMode, WindowOptions};
-use std::ops::DerefMut;
 
 const WIDTH: usize = 800;
 const HEIGHT: usize = 640;

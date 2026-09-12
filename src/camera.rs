@@ -1,5 +1,4 @@
 ﻿use glam::{Mat4, Quat, Vec3};
-use crate::pipeline::Uniforms;
 
 pub struct Camera {
     pub pos: Vec3,

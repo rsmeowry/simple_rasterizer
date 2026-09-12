@@ -1,9 +1,8 @@
-﻿use glam::{Mat4, Vec2, Vec3, Vec4};
-use crate::asset::Texture;
-use crate::camera::Camera;
-use crate::pipeline::{Color, Uniforms};
+﻿use crate::asset::Texture;
 use crate::pipeline::shader::{FragmentShader, PerObjectUniforms, Varyings, VertexShader};
 use crate::pipeline::vertex::Vertex;
+use crate::pipeline::{Color, Uniforms};
+use glam::{Mat4, Vec2, Vec3, Vec4};
 
 #[derive(Debug, Clone)]
 pub struct TexCoord(Vec2);
@@ -73,7 +72,7 @@ impl VertexShader<Vertex, TexCoord> for SimpleTexCoords {
 }
 
 impl FragmentShader<TexCoord> for UnlitTextured {
-    fn apply(&self, var: &TexCoord, uniforms: &Uniforms) -> Vec4 {
+    fn apply(&self, var: &TexCoord, _uniforms: &Uniforms) -> Vec4 {
         let tex = &self.0;
         let sampled = tex.sample_nearest(var.0);
         Vec4::new(sampled.x, sampled.y, sampled.z, 1.)

@@ -1,10 +1,9 @@
-﻿use std::time::Instant;
-use glam::{Mat4, Quat, Vec3};
-use crate::asset::Texture;
-use crate::camera::Camera;
+﻿use crate::camera::Camera;
 use crate::pipeline::object::AnyRenderObject;
-use crate::pipeline::{Pipeline, Uniforms};
 use crate::pipeline::shader::PerObjectUniforms;
+use crate::pipeline::{Pipeline, Uniforms};
+use glam::{Mat4, Quat, Vec3};
+use std::time::Instant;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Transform {

@@ -1,7 +1,7 @@
 ﻿pub mod builtin;
 
-use glam::{Mat4, Quat, Vec3, Vec4};
 use crate::pipeline::Uniforms;
+use glam::{Mat4, Vec4};
 
 #[derive(Debug, Clone)]
 pub struct PerObjectUniforms {

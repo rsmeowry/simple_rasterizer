@@ -1,14 +1,9 @@
-﻿use std::any::Any;
-use std::marker::PhantomData;
-use glam::{Mat4, Quat, Vec2, Vec3, Vec4, Vec4Swizzles};
-use crate::asset::Texture;
-use crate::camera::Camera;
-use crate::framebuffer::{col3_to_u32, Framebuffer};
-use crate::pipeline::object::{AnyRenderObject, RenderObject};
-use crate::pipeline::shader::{FragmentShader, PerObjectUniforms, Varyings, VertexShader};
-use crate::pipeline::vertex::Vertex;
+﻿use crate::framebuffer::{col3_to_u32, Framebuffer};
+use crate::pipeline::object::AnyRenderObject;
 use crate::tri::Tri;
 use crate::world::Transform;
+use glam::{Mat4, Vec2, Vec3, Vec4, Vec4Swizzles};
+use std::any::Any;
 
 pub mod vertex;
 pub mod shader;
@@ -21,6 +16,7 @@ pub struct Color(Vec3);
 #[derive(Debug, Clone)]
 pub struct Uniforms {
     camera_pos: Vec3,
+    #[allow(dead_code)]
     view_dir: Vec3,
     view: Mat4,
     proj: Mat4,

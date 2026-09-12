@@ -19,7 +19,7 @@ pub fn load_obj<P: AsRef<Path> + Debug, V: 'static, VS: 'static, FS: 'static>(pa
     let mut vertices = Vec::with_capacity(vertex_cnt);
 
     for i in 0..vertex_cnt {
-        let mut pos = Vec3::new(
+        let pos = Vec3::new(
             mesh.positions[i * 3 + 0],
             mesh.positions[i * 3 + 1],
             mesh.positions[i * 3 + 2],

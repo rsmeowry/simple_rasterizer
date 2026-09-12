@@ -1,6 +1,4 @@
-﻿use glam::Vec3;
-
-pub trait RoundN {
+﻿pub trait RoundN {
     fn round_n(&self, n: usize) -> Self;
 }
 

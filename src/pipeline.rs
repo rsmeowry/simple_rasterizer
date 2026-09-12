@@ -80,7 +80,6 @@ impl Pipeline {
                 let s2 = to_screen(*c2, w, h);
 
                 let tri2d = Tri(s0.pos, s1.pos, s2.pos);
-                println!("{} {} {} {c0} {c1} {c2}", s0.pos, s1.pos, s2.pos);
                 if tri2d.area() <= 0. {
                     continue; // facing the other way
                 }

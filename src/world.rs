@@ -16,18 +16,6 @@ impl Transform {
     pub fn uniforms(&self) -> PerObjectUniforms {
         PerObjectUniforms::new(Mat4::from_scale_rotation_translation(self.scl, self.rot, self.pos))
     }
-
-    pub fn set_pos(&mut self, pos: Vec3) {
-        self.pos = pos;
-    }
-
-    pub fn set_rot(&mut self, rot: Quat) {
-        self.rot = rot;
-    }
-
-    pub fn set_scl(&mut self, scl: Vec3) {
-        self.scl = scl;
-    }
 }
 
 impl Default for Transform {
@@ -65,6 +53,10 @@ impl<'w> World<'w> {
         self.dt = (Instant::now() - self.last_frame).as_secs_f32();
         self.last_frame = Instant::now();
         println!("Frame time: {}", self.dt);
+    }
+    
+    pub fn camera_mut(&mut self) -> &mut Camera {
+        &mut self.camera
     }
     
     pub fn time(&self) -> f32 {

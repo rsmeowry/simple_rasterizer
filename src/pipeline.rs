@@ -7,6 +7,7 @@ use crate::pipeline::object::{AnyRenderObject, RenderObject};
 use crate::pipeline::shader::{FragmentShader, PerObjectUniforms, Varyings, VertexShader};
 use crate::pipeline::vertex::Vertex;
 use crate::tri::Tri;
+use crate::world::Transform;
 
 pub mod vertex;
 pub mod shader;
@@ -53,13 +54,13 @@ impl Pipeline {
         &self.fb
     }
 
-    pub fn draw(&mut self, objects: &Vec<Box<dyn AnyRenderObject>>, uniforms: Uniforms) {
+    pub fn draw(&mut self, objects: &Vec<(&Box<dyn AnyRenderObject>, Transform)>, uniforms: Uniforms) {
         self.fb.clear(0x7fc7f4);
         self.fb.clear_depth();
-        println!("NEXT FRAME!");
-        for obj in objects {
+        for (obj, tf) in objects {
             // vertex stage
-            let tf_vertices: Vec<(Vec4, Box<dyn Any>)> = obj.vertices().iter().map(|v| obj.do_vertex_stage(v, &uniforms))
+            let obj_uniforms = tf.uniforms();
+            let tf_vertices: Vec<(Vec4, Box<dyn Any>)> = obj.vertices().iter().map(|v| obj.do_vertex_stage(v, &uniforms, &obj_uniforms))
                 .collect();
 
             // rasterizing
@@ -79,6 +80,7 @@ impl Pipeline {
                 let s2 = to_screen(*c2, w, h);
 
                 let tri2d = Tri(s0.pos, s1.pos, s2.pos);
+                println!("{} {} {} {c0} {c1} {c2}", s0.pos, s1.pos, s2.pos);
                 if tri2d.area() <= 0. {
                     continue; // facing the other way
                 }

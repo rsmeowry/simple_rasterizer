@@ -6,41 +6,17 @@ use crate::pipeline::Uniforms;
 #[derive(Debug, Clone)]
 pub struct PerObjectUniforms {
     model_matrix: Mat4,
-    pos: Vec3,
-    rot: Quat,
-    scale: Vec3,
 }
 
 impl PerObjectUniforms {
-    // TODO: lazy computation of matrix maybe idk
-    pub fn set_pos(&mut self, pos: Vec3) {
-        self.pos = pos;
-        self.model_matrix = Mat4::from_scale_rotation_translation(self.scale, self.rot, self.pos);
+    pub fn new(matrix: Mat4) -> Self {
+        Self {
+            model_matrix: matrix,
+        }
     }
-
-    pub fn set_rot(&mut self, rot: Quat) {
-        self.rot = rot;
-        self.model_matrix = Mat4::from_scale_rotation_translation(self.scale, self.rot, self.pos);
-    }
-
-    pub fn set_scale(&mut self, scale: Vec3) {
-        self.scale = scale;
-        self.model_matrix = Mat4::from_scale_rotation_translation(self.scale, self.rot, self.pos);
-    }
-
+    
     pub fn model_matrix(&self) -> &Mat4 {
         &self.model_matrix
-    }
-}
-
-impl Default for PerObjectUniforms {
-    fn default() -> Self {
-        Self {
-            model_matrix: Mat4::IDENTITY,
-            pos: Vec3::ZERO,
-            rot: Quat::IDENTITY,
-            scale: Vec3::ONE,
-        }
     }
 }
 

@@ -11,7 +11,6 @@ pub struct RenderObject<V, VS, FS> where V: Varyings, VS: VertexShader<Vertex, V
     pub indices: Vec<u32>,
     pub vs: VS,
     pub fs: FS,
-    pub per_object: PerObjectUniforms,
     pd: PhantomData<V>
 }
 
@@ -22,7 +21,6 @@ impl<V, VS, FS> RenderObject<V, VS, FS> where V: Varyings, VS: VertexShader<Vert
             indices,
             vs,
             fs,
-            per_object: Default::default(),
             pd: Default::default(),
         }
     }
@@ -31,8 +29,7 @@ impl<V, VS, FS> RenderObject<V, VS, FS> where V: Varyings, VS: VertexShader<Vert
 pub trait AnyRenderObject {
     fn indices(&self) -> &[u32];
     fn vertices(&self) -> &Vec<Vertex>;
-    fn per_object_uniforms(&self) -> &PerObjectUniforms;
-    fn do_vertex_stage(&self, vertex: &Vertex, uniforms: &Uniforms) -> (Vec4, Box<dyn Any>);
+    fn do_vertex_stage(&self, vertex: &Vertex, uniforms: &Uniforms, tf: &PerObjectUniforms) -> (Vec4, Box<dyn Any>);
     fn do_frag_stage(&self, var: Box<dyn Any>, uniforms: &Uniforms) -> Vec4;
     fn interpolate_varyings(
         &self,
@@ -50,12 +47,8 @@ impl<V, VS, FS> AnyRenderObject for RenderObject<V, VS, FS> where V: Varyings + 
         &self.vertices
     }
 
-    fn per_object_uniforms(&self) -> &PerObjectUniforms {
-        &self.per_object
-    }
-
-    fn do_vertex_stage(&self, vertex: &Vertex, uniforms: &Uniforms) -> (Vec4, Box<dyn Any>) {
-        let (clip_pos, var) = self.vs.process(&vertex, &self.per_object, uniforms);
+    fn do_vertex_stage(&self, vertex: &Vertex, uniforms: &Uniforms, tf: &PerObjectUniforms) -> (Vec4, Box<dyn Any>) {
+        let (clip_pos, var) = self.vs.process(&vertex, tf, uniforms);
         (clip_pos, Box::new(var))
     }
 

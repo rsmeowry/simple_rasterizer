@@ -8,7 +8,7 @@ pub mod asset;
 
 use crate::asset::Texture;
 use crate::pipeline::object::AnyRenderObject;
-use crate::pipeline::shader::builtin::UnlitTextured;
+use crate::pipeline::shader::builtin::{PhongFS, PhongVS, SimpleTexCoords, UnlitTextured};
 use crate::util::RoundN;
 use crate::world::{Transform, World};
 use glam::{FloatExt, Quat, Vec3};
@@ -32,12 +32,20 @@ fn main() {
 
     let mut pipeline = pipeline::Pipeline::new(WIDTH, HEIGHT);
 
-    let pusheen = asset::load_obj("./assets/pusheen.obj", UnlitTextured, UnlitTextured);
     let tex = Texture::load("./assets/pusheen_albedo.png");
+    let shader = PhongFS {
+        light_dir: Vec3::new(0.5, -1.0, 0.3).normalize(),
+        light_col: Vec3::new(1.0, 1.0, 0.95),
+        ambient: 0.1,
+        diffuse_k: 0.7,
+        specular_k: 0.3,
+        shininess: 128.0,
+        tex,
+    };
+    let pusheen = asset::load_obj("./assets/pusheen.obj", PhongVS, shader);
     let mut tf = Transform::default();
 
     let mut world = World::new();
-    world.set_main_tex(tex);
     let cam = world.camera_mut();
     cam.pos = Vec3::new(0., 1., -6.);
     cam.fov = 90f32.to_radians();
@@ -55,9 +63,9 @@ fn main() {
         }
 
         if win.is_key_pressed(Key::Left, KeyRepeat::Yes) {
-            y -= world.delta_time() * 120.;
+            y -= world.delta_time() * 190.;
         } else if win.is_key_pressed(Key::Right, KeyRepeat::Yes) {
-            y += world.delta_time() * 120.;
+            y += world.delta_time() * 190.;
         }
 
         tf.rot = Quat::from_rotation_y(y.to_radians());

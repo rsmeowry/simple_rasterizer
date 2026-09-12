@@ -20,15 +20,16 @@ pub struct Color(Vec3);
 
 #[derive(Debug, Clone)]
 pub struct Uniforms {
+    camera_pos: Vec3,
+    view_dir: Vec3,
     view: Mat4,
     proj: Mat4,
-    tex: Option<Texture>
 }
 
 impl Uniforms {
-    pub fn new(view: Mat4, proj: Mat4, tex: Option<Texture>) -> Self {
+    pub fn new(view: Mat4, proj: Mat4, camera_pos: Vec3) -> Self {
         Self {
-            view, proj, tex
+            view, proj, view_dir: view.transform_vector3(Vec3::Z), camera_pos
         }
     }
 
@@ -38,10 +39,6 @@ impl Uniforms {
 
     pub fn proj(&self) -> &Mat4 {
         &self.proj
-    }
-
-    pub fn tex(&self) -> &Option<Texture> {
-        &self.tex
     }
 }
 

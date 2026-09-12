@@ -35,8 +35,7 @@ pub struct World<'w> {
     begin_time: Instant,
     last_frame: Instant,
     dt: f32,
-    camera: Camera,
-    main_tex: Option<Texture>,
+    camera: Camera, 
 }
 
 impl<'w> World<'w> {
@@ -47,12 +46,7 @@ impl<'w> World<'w> {
             last_frame: Instant::now(),
             dt: 0.,
             camera: Camera::default(),
-            main_tex: None,
         }
-    }
-
-    pub fn set_main_tex(&mut self, main_tex: Texture) {
-        self.main_tex = Some(main_tex);
     }
 
     pub fn begin_frame(&mut self) {
@@ -75,7 +69,7 @@ impl<'w> World<'w> {
 
     pub fn render(&self, pipeline: &mut Pipeline) {
         let (proj, view) = self.camera.proj_view();
-        pipeline.draw(&self.object_queue, Uniforms::new(view, proj, self.main_tex.clone()));
+        pipeline.draw(&self.object_queue, Uniforms::new(view, proj, self.camera.pos));
     }
 
     pub fn draw_object(&mut self, object: &'w Box<dyn AnyRenderObject>, tf: Transform) {

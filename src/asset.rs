@@ -28,7 +28,7 @@ pub fn load_obj<P: AsRef<Path> + Debug, V: 'static, VS: 'static, FS: 'static>(pa
         // pos = Vec3::new(pos.x, pos.z, -pos.y);
 
         let normal = if !mesh.normals.is_empty() {
-            Vec3::new(
+            -Vec3::new(
                 mesh.normals[i * 3],
                 mesh.normals[i * 3 + 1],
                 mesh.normals[i * 3 + 2],

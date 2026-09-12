@@ -54,8 +54,8 @@ impl Framebuffer {
 }
 
 pub fn col3_to_u32(col: Vec3) -> u32 {
-    let r = (col.x * 255f32).round() as u32;
-    let g = (col.y * 255f32).round() as u32;
-    let b = (col.z * 255f32).round() as u32;
+    let r = (col.x.clamp(0., 1.) * 255f32).round() as u32;
+    let g = (col.y.clamp(0., 1.) * 255f32).round() as u32;
+    let b = (col.z.clamp(0., 1.) * 255f32).round() as u32;
     return r << 16 | g << 8 | b;
 }

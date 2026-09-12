@@ -1,6 +1,7 @@
 ﻿use glam::Vec2;
 
 /// a 2D triangle
+#[derive(Debug, Clone)]
 pub struct Tri(pub Vec2, pub Vec2, pub Vec2);
 
 impl Tri {

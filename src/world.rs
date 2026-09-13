@@ -1,12 +1,11 @@
-use std::path::Path;
 use crate::camera::Camera;
 use crate::pipeline::object::AnyRenderObject;
 use crate::pipeline::shader::PerObjectUniforms;
 use crate::pipeline::{Pipeline, Uniforms};
 use glam::{Mat4, Quat, Vec3};
+use image::{ImageBuffer, ImageFormat, RgbImage};
+use std::path::Path;
 use std::time::Instant;
-use image::{ColorType, DynamicImage, FlatSamples, GenericImage, ImageBuffer, ImageFormat, RgbImage, RgbaImage};
-use minifb::Window;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Transform {
@@ -81,7 +80,7 @@ impl<'w> World<'w> {
 
     pub fn render_to_png<P: AsRef<Path>>(&mut self, pipeline: &mut Pipeline, out: P) {
         let (old_w, old_h) = {
-            let mut buf_m = pipeline.buffer_mut();
+            let buf_m = pipeline.buffer_mut();
             let o = (buf_m.width(), buf_m.height());
             buf_m.resize(1920, 1080);
             o

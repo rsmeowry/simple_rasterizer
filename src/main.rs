@@ -59,6 +59,7 @@ fn main() {
     // cam.dir = look_at_quat(cam.pos, Vec3::ZERO, Vec3::Y);
 
     let mut y = 0f32;
+    let mut scale = 1f32;
     while win.is_open() && !win.is_key_down(Key::Escape) {
         world.begin_frame();
 
@@ -69,12 +70,19 @@ fn main() {
             ));
         }
 
-        if win.is_key_pressed(Key::Left, KeyRepeat::Yes) {
-            y -= world.delta_time() * 190.;
-        } else if win.is_key_pressed(Key::Right, KeyRepeat::Yes) {
-            y += world.delta_time() * 190.;
+        if win.is_key_down(Key::Left) {
+            y -= world.delta_time() * 190. * if win.is_key_down(Key::LeftShift) { 5. } else { 1. };
+        } else if win.is_key_down(Key::Right) {
+            y += world.delta_time() * 190. * if win.is_key_down(Key::LeftShift) { 5. } else { 1. };
         }
 
+        if win.is_key_down(Key::Down) {
+            scale -= world.delta_time();
+        } else if win.is_key_down(Key::Up) {
+            scale += world.delta_time();
+        }
+
+        tf.scl = Vec3::ONE * scale;
         tf.rot = Quat::from_rotation_y(y.to_radians());
         world.draw_object(&pusheen, tf);
 

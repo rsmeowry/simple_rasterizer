@@ -71,9 +71,21 @@ fn main() {
         }
 
         if win.is_key_down(Key::Left) {
-            y -= world.delta_time() * 190. * if win.is_key_down(Key::LeftShift) { 5. } else { 1. };
+            y -= world.delta_time()
+                * 190.
+                * if win.is_key_down(Key::LeftShift) {
+                    5.
+                } else {
+                    1.
+                };
         } else if win.is_key_down(Key::Right) {
-            y += world.delta_time() * 190. * if win.is_key_down(Key::LeftShift) { 5. } else { 1. };
+            y += world.delta_time()
+                * 190.
+                * if win.is_key_down(Key::LeftShift) {
+                    5.
+                } else {
+                    1.
+                };
         }
 
         if win.is_key_down(Key::Down) {

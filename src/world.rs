@@ -87,7 +87,10 @@ impl<'w> World<'w> {
         };
         self.camera.aspect = 1920. / 1080.;
         let (proj, view) = self.camera.proj_view();
-        pipeline.draw(&self.object_queue, Uniforms::new(view, proj, self.camera.pos));
+        pipeline.draw(
+            &self.object_queue,
+            Uniforms::new(view, proj, self.camera.pos),
+        );
 
         let pixels = unpack_col_buf(pipeline.buffer().color());
         let image: RgbImage = ImageBuffer::from_raw(1920, 1080, pixels).unwrap();
@@ -114,8 +117,8 @@ fn unpack_col_buf(buf: &[u32]) -> Vec<u8> {
 
     for &pixel in buf {
         out.push(((pixel >> 16) & 0xff) as u8); // R
-        out.push(((pixel >> 8) & 0xff) as u8);  // G
-        out.push((pixel & 0xff) as u8);         // B
+        out.push(((pixel >> 8) & 0xff) as u8); // G
+        out.push((pixel & 0xff) as u8); // B
     }
 
     out

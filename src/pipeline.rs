@@ -52,6 +52,10 @@ impl Pipeline {
         }
     }
 
+    pub fn buffer_mut(&mut self) -> &mut Framebuffer {
+        &mut self.fb
+    }
+
     pub fn buffer(&self) -> &Framebuffer {
         &self.fb
     }

@@ -16,6 +16,13 @@ impl Framebuffer {
             depth: vec![f32::INFINITY; width * height],
         }
     }
+    
+    pub fn resize(&mut self, width: usize, height: usize) {
+        self.width = width;
+        self.height = height;
+        self.color = vec![0xF2_00_00; width * height];
+        self.depth = vec![f32::INFINITY; width * height];
+    }
 
     pub fn width(&self) -> usize {
         self.width

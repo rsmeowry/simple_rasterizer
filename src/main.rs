@@ -46,7 +46,7 @@ fn main() {
         shininess: 128.0,
         tex,
     };
-    let pusheen = asset::load_obj("./assets/pusheen.obj", PhongVS, shader);
+    let pusheen = asset::load_obj("./assets/pusheen_hi_res.obj", PhongVS, shader);
     let mut tf = Transform::default();
 
     let mut world = World::new();
@@ -77,6 +77,11 @@ fn main() {
 
         tf.rot = Quat::from_rotation_y(y.to_radians());
         world.draw_object(&pusheen, tf);
+
+        // rendering to png requires objects
+        if win.is_key_pressed(Key::R, KeyRepeat::No) {
+            world.render_to_png(&mut pipeline, "./out.JPEG");
+        }
 
         world.render(&mut pipeline);
 

@@ -1,9 +1,12 @@
+use std::path::Path;
 use crate::camera::Camera;
 use crate::pipeline::object::AnyRenderObject;
 use crate::pipeline::shader::PerObjectUniforms;
 use crate::pipeline::{Pipeline, Uniforms};
 use glam::{Mat4, Quat, Vec3};
 use std::time::Instant;
+use image::{ColorType, DynamicImage, FlatSamples, GenericImage, ImageBuffer, ImageFormat, RgbImage, RgbaImage};
+use minifb::Window;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Transform {
@@ -76,6 +79,25 @@ impl<'w> World<'w> {
         );
     }
 
+    pub fn render_to_png<P: AsRef<Path>>(&mut self, pipeline: &mut Pipeline, out: P) {
+        let (old_w, old_h) = {
+            let mut buf_m = pipeline.buffer_mut();
+            let o = (buf_m.width(), buf_m.height());
+            buf_m.resize(1920, 1080);
+            o
+        };
+        self.camera.aspect = 1920. / 1080.;
+        let (proj, view) = self.camera.proj_view();
+        pipeline.draw(&self.object_queue, Uniforms::new(view, proj, self.camera.pos));
+
+        let pixels = unpack_col_buf(pipeline.buffer().color());
+        let image: RgbImage = ImageBuffer::from_raw(1920, 1080, pixels).unwrap();
+        image.save_with_format(out, ImageFormat::Jpeg).unwrap();
+
+        pipeline.buffer_mut().resize(old_w, old_h);
+        self.camera.aspect = old_w as f32 / old_h as f32;
+    }
+
     #[allow(clippy::borrowed_box)]
     pub fn draw_object(&mut self, object: &'w Box<dyn AnyRenderObject>, tf: Transform) {
         self.object_queue.push((object, tf));
@@ -86,4 +108,16 @@ impl<'w> Default for World<'w> {
     fn default() -> Self {
         Self::new()
     }
+}
+
+fn unpack_col_buf(buf: &[u32]) -> Vec<u8> {
+    let mut out = Vec::with_capacity(buf.len() * 3);
+
+    for &pixel in buf {
+        out.push(((pixel >> 16) & 0xff) as u8); // R
+        out.push(((pixel >> 8) & 0xff) as u8);  // G
+        out.push((pixel & 0xff) as u8);         // B
+    }
+
+    out
 }

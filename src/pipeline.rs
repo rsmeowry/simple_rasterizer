@@ -187,7 +187,7 @@ impl Pipeline {
 }
 
 struct ScreenVert {
-    pos: Vec2,  // pixel coordinates pos
+    pos: Vec2, // pixel coordinates pos
     inv_w: f32, // for perspective correct interpolation
     ndc_z: f32, // depth
 }

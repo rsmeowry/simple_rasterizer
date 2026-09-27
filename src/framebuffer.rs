@@ -56,7 +56,7 @@ impl Framebuffer {
     }
 
     pub fn clear_depth(&mut self) {
-        self.depth.fill(f32::INFINITY);
+        self.depth.fill(1.);
     }
 }
 

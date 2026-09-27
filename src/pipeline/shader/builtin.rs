@@ -113,7 +113,7 @@ impl VertexShader<Vertex, PhongVaryings> for PhongVS {
         uniforms: &Uniforms,
     ) -> (Vec4, PhongVaryings) {
         let world_pos = obj.model_matrix.transform_point3(vertex.pos);
-        let normal = vertex.normal;
+        let normal = obj.model_matrix.transform_vector3(vertex.normal);
         let uv = vertex.uv;
 
         let mvp = uniforms.proj * uniforms.view * obj.model_matrix();
@@ -163,16 +163,21 @@ impl Varyings for PhongVaryings {
 impl FragmentShader<PhongVaryings> for PhongFS {
     fn apply(&self, var: &PhongVaryings, uniforms: &Uniforms) -> Vec4 {
         let view_dir = (uniforms.camera_pos - var.world_pos).normalize();
+        let l = -self.light_dir;
         let n = var.normal.normalize();
-        let reflect_dir = (-self.light_dir).reflect(n);
+        let reflect_dir = self.light_dir.reflect(n);
 
-        let diffuse = n.dot(self.light_dir).max(0.0);
-        let specular = view_dir.dot(reflect_dir).max(0.0).powf(self.shininess);
+        let diffuse = n.dot(l).max(0.0);
+        let specular = if diffuse > 0.0 {
+            view_dir.dot(reflect_dir).max(0.0).powf(self.shininess)
+        } else {
+            0.0
+        };
 
         let base_color = self.tex.sample_nearest(var.uv);
 
         let intensity = self.ambient + self.diffuse_k * diffuse;
-        let col = base_color * self.light_col * intensity + self.specular_k * specular;
+        let col = base_color * self.light_col * intensity + self.specular_k * specular * self.light_col;
         col.extend(1.)
     }
 }

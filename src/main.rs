@@ -42,7 +42,7 @@ fn main() {
         light_col: Vec3::new(1.0, 1.0, 0.95),
         ambient: 0.1,
         diffuse_k: 0.7,
-        specular_k: 0.3,
+        specular_k: 0.6,
         shininess: 128.0,
         tex,
     };

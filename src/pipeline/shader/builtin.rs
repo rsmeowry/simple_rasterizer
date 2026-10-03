@@ -45,7 +45,7 @@ impl VertexShader<Vertex, Color> for SimpleVertexColor {
 
 impl FragmentShader<Color> for SimpleVertexColor {
     fn apply(&self, var: &Color, _uniforms: &Uniforms) -> Vec4 {
-        Vec4::new(var.0.x, var.0.y, var.0.z, 1.)
+        Vec4::new(var.0.x, var.0.y, var.0.z, var.0.w)
     }
 }
 
@@ -72,6 +72,10 @@ impl FragmentShader<Vec2> for VisualizeUv {
         Vec4::new(var.x, var.y, 1., 1.)
     }
 }
+
+#[derive(Debug, Copy, Clone)]
+pub struct SimpleTransparency;
+
 
 #[derive(Debug, Copy, Clone)]
 pub struct SimpleTexCoords;

@@ -2,7 +2,7 @@ use crate::framebuffer::{Framebuffer, col3_to_u32};
 use crate::pipeline::object::AnyRenderObject;
 use crate::tri::Tri;
 use crate::world::Transform;
-use glam::{Mat4, Vec2, Vec3, Vec4, Vec4Swizzles};
+use glam::{Mat4, Vec2, Vec3, Vec3Swizzles, Vec4, Vec4Swizzles};
 use std::any::Any;
 
 pub mod object;
@@ -11,7 +11,7 @@ pub mod vertex;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 #[repr(transparent)]
-pub struct Color(Vec3);
+pub struct Color(Vec4);
 
 #[derive(Debug, Clone)]
 pub struct Uniforms {
@@ -179,7 +179,14 @@ impl Pipeline {
                 );
                 let col = obj.do_frag_stage(interp, uniforms);
 
-                self.fb.set_col(x, y, col3_to_u32(col.xyz()));
+                // if we have transparent color, blend it instead
+                if col.w < 1. {
+                    let base = self.fb.get_col(x, y);
+                    let resulting = base.lerp(col.xyz(), col.w);
+                    self.fb.set_col(x, y, col3_to_u32(resulting.xyz()));
+                } else {
+                    self.fb.set_col(x, y, col3_to_u32(col.xyz()));
+                }
                 self.fb.set_depth(x, y, depth);
             }
         }
@@ -195,6 +202,16 @@ struct ScreenVert {
 fn to_screen(clip: Vec4, w: f32, h: f32) -> ScreenVert {
     let inv_w = 1. / clip.w;
 
+    // obj space: vec(2, 4, 1)
+    // world space -> model matrix vec(7, 3, 1, 3)
+    // clip space -> camera matrix vec(9, 5, 2, 10)
+
+    // OBJECT SPACE: [-1.967946, -0.554603, -0.508326]
+    // WORLD SPACE: [-1.967946, -0.554603, -0.508326, 1]
+    // CLIP SPACE: [1.5743569, -1.554603, 5.392213, 5.491674]
+    // NDC: [0.11787175, 0.14638874, 0.9827576]
+    // SCREEN: [447.1487, 273.15558]
+    
     // clip space to normalized coords
     let ndc_x = clip.x * inv_w;
     let ndc_y = clip.y * inv_w;

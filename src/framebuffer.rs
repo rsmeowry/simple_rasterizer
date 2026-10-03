@@ -43,6 +43,10 @@ impl Framebuffer {
     pub fn set_col(&mut self, x: usize, y: usize, color: u32) {
         self.color[y * self.width + x] = color;
     }
+    pub fn get_col(&self, x: usize, y: usize) -> Vec3 {
+        let col = self.color[y * self.width + x];
+        u32_to_col3(col)
+    }
     pub fn set_depth(&mut self, x: usize, y: usize, depth: f32) {
         self.depth[y * self.width + x] = depth;
     }
@@ -65,4 +69,11 @@ pub fn col3_to_u32(col: Vec3) -> u32 {
     let g = (col.y.clamp(0., 1.) * 255f32).round() as u32;
     let b = (col.z.clamp(0., 1.) * 255f32).round() as u32;
     r << 16 | g << 8 | b
+}
+
+pub fn u32_to_col3(col: u32) -> Vec3 {
+    let r = (col & 0xFF_00_00) >> 16;
+    let g = (col & 0x00_FF_00) >> 8;
+    let b = (col & 0x00_00_FF) >> 0;
+    Vec3::new(r as f32 / 256., g as f32 / 256., b as f32 / 256.)
 }

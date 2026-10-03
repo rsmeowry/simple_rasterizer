@@ -7,14 +7,42 @@ pub mod util;
 pub mod world;
 
 use crate::asset::Texture;
-use crate::pipeline::shader::builtin::{PhongFS, PhongVS};
+use crate::pipeline::shader::builtin::{PhongFS, PhongVS, SimpleVertexColor};
 use crate::util::RoundN;
 use crate::world::{Transform, World};
-use glam::{Quat, Vec3};
+use glam::{Quat, Vec3, Vec4};
 use minifb::{Key, KeyRepeat, Scale, ScaleMode, WindowOptions};
+use crate::pipeline::Color;
+use crate::pipeline::object::{AnyRenderObject, RenderObject};
+use crate::pipeline::vertex::Vertex;
 
 const WIDTH: usize = 800;
 const HEIGHT: usize = 640;
+
+fn cube_geom() -> RenderObject<Color, SimpleVertexColor, SimpleVertexColor> {
+    let vertices = vec![
+        Vertex::new_col(Vec3::new(-1.0, -1.0, -1.0), Vec4::new(0.0, 0.0, 1.0, 0.3)),
+        Vertex::new_col(Vec3::new(-1.0, 1.0, -1.0), Vec4::new(0.0, 0.0, 1.0, 0.3)),
+        Vertex::new_col(Vec3::new(1.0, 1.0, -1.0), Vec4::new(0.0, 0.0, 1.0, 0.3)),
+        Vertex::new_col(Vec3::new(1.0, -1.0, -1.0), Vec4::new(0.0, 0.0, 1.0, 0.3)),
+        Vertex::new_col(Vec3::new(-1.0, -1.0, 1.0), Vec4::new(0.0, 0.0, 1.0, 0.3)),
+        Vertex::new_col(Vec3::new(-1.0, 1.0, 1.0), Vec4::new(0.0, 0.0, 1.0, 0.3)),
+        Vertex::new_col(Vec3::new(1.0, 1.0, 1.0), Vec4::new(0.0, 0.0, 1.0, 0.3)),
+        Vertex::new_col(Vec3::new(1.0, -1.0, 1.0), Vec4::new(0.0, 0.0, 1.0, 0.3)),
+    ];
+
+    let indices = vec![
+        0, 1, 2,  0, 2, 3,
+        4, 6, 5,  4, 7, 6,
+        4, 5, 1,  4, 1, 0,
+        3, 2, 6,  3, 6, 7,
+        1, 5, 6,  1, 6, 2,
+        4, 0, 3,  4, 3, 7,
+    ];
+
+    let ro = RenderObject::new(vertices, indices, SimpleVertexColor, SimpleVertexColor);
+    ro
+}
 
 fn main() {
     let mut win = minifb::Window::new(
@@ -46,8 +74,14 @@ fn main() {
         shininess: 128.0,
         tex,
     };
+
+    let transparent_shader = SimpleVertexColor;
+
     let pusheen = asset::load_obj("./assets/pusheen_hi_res.obj", PhongVS, shader);
+    let cube: Box<dyn AnyRenderObject> = Box::new(cube_geom());
     let mut tf = Transform::default();
+    let mut ice_tf = Transform::default();
+    ice_tf.scl = Vec3::ONE * 2.;
 
     let mut world = World::new();
     let cam = world.camera_mut();
@@ -95,8 +129,11 @@ fn main() {
         }
 
         tf.scl = Vec3::ONE * scale;
+        ice_tf.scl = Vec3::ONE * 2. * scale;
         tf.rot = Quat::from_rotation_y(y.to_radians());
+        ice_tf.rot = tf.rot;
         world.draw_object(&pusheen, tf);
+        world.draw_object(&cube, ice_tf);
 
         // rendering to png requires objects
         if win.is_key_pressed(Key::R, KeyRepeat::No) {

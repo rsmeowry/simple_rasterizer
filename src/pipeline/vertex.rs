@@ -1,4 +1,4 @@
-use glam::{Vec2, Vec3};
+use glam::{Vec2, Vec3, Vec4};
 
 #[macro_export]
 macro_rules! verts {
@@ -14,13 +14,13 @@ macro_rules! verts {
 #[derive(Debug, Clone, Copy)]
 pub struct Vertex {
     pub pos: Vec3,
-    pub col: Vec3,
+    pub col: Vec4,
     pub normal: Vec3,
     pub uv: Vec2,
 }
 
 impl Vertex {
-    pub fn new_col(pos: Vec3, col: Vec3) -> Self {
+    pub fn new_col(pos: Vec3, col: Vec4) -> Self {
         Self {
             pos,
             col,
@@ -32,7 +32,7 @@ impl Vertex {
     pub fn new_normal_uv(pos: Vec3, normal: Vec3, uv: Vec2) -> Self {
         Self {
             pos,
-            col: Vec3::ZERO,
+            col: Vec4::new(0., 0., 0., 1.),
             normal,
             uv,
         }
